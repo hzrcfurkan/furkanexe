@@ -1,9 +1,9 @@
-const { app, BrowserWindow, Tray, Menu, shell, nativeImage } = require("electron")
+const { app, BrowserWindow, Tray, Menu, nativeImage } = require("electron")
 const path = require("path")
 const Store = require("electron-store")
 
 const store = new Store()
-const APP_URL = "https://petdene.vercel.app"
+const APP_URL = "https://petdene.vercel.app/login"
 
 let mainWindow = null
 let tray = null
@@ -101,10 +101,19 @@ function createMain() {
     }
   })
 
-  // Dış linkler tarayıcıda açılsın
+  // Dış linkler engelle — sadece petdene.vercel.app içinde kal
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url)
+    if (url.startsWith("https://petdene.vercel.app")) {
+      mainWindow.loadURL(url)
+    }
     return { action: "deny" }
+  })
+
+  // Navigation'ı da kısıtla — petdene dışına izin verme
+  mainWindow.webContents.on("will-navigate", (event, url) => {
+    if (!url.startsWith("https://petdene.vercel.app")) {
+      event.preventDefault()
+    }
   })
 }
 
